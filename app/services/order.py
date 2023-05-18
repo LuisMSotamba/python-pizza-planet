@@ -10,7 +10,7 @@ order = Blueprint('order', __name__)
 def create_order():
     order, error = OrderController.create(request.json)
     response = order if not error else {'error': error}
-    status_code = 200 if not error else 400
+    status_code = 201 if not error else 400
     return jsonify(response), status_code
 
 
