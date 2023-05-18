@@ -11,3 +11,10 @@ def create_beverage():
     response = beverage if not error else {'error': error}
     status_code = 201 if not error else 400
     return jsonify(response), status_code
+
+@beverage.route('/', methods=GET)
+def get_beverages():
+    beverages, error = BeverageController.get_all()
+    response = beverages if not error else {'error': error}
+    status_code = 200 if beverages else 404 if not error else 400
+    return jsonify(response), status_code
