@@ -28,15 +28,15 @@ def create_order_report(orders):
         _order = order.json
         date_object = datetime.strptime(_order['date'], '%Y-%m-%dT%H:%M:%S.%f')
         month = calendar.month_name[date_object.month]
-        if month in order_report:
-            order_report[month]['revenue'] += _order['total_price']
+        if date_object.month in order_report:
+            order_report[date_object.month]['revenue'] += _order['total_price']
         else:
-            order_report[month] = {
+            order_report[date_object.month] = {
                 'month': month,
                 'revenue': _order['total_price']
             }
-    order_report = [order_range for order_range in order_report.values()]
-    return sorted(order_report, key=lambda x: x['revenue'], reverse=True)
+    order_report = [order_range_tuple[1] for order_range_tuple in sorted(order_report.items(), key=lambda x: x[0])]
+    return order_report
 
 
 def create_customer_report(orders):

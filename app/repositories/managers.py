@@ -112,7 +112,7 @@ class ReportManager(BaseManager):
     def _get_months_more_revenue(cls):
         months_more_revenues = cls.session.query(extract('month',Order.date).label('month'), func.sum(Order.total_price).label('revenue')) \
             .group_by(extract('month',Order.date)) \
-            .order_by(desc('revenue')) \
+            .order_by('month') \
             .all()
         report = [{'month':calendar.month_name[month_revenue[0]], 'revenue':month_revenue[1]} for month_revenue in months_more_revenues]
         return report
