@@ -1,11 +1,13 @@
 from typing import Any, List, Optional, Sequence
 
 from sqlalchemy.sql import text, column, func, desc
+from sqlalchemy import extract
 
 from .models import Ingredient, Order, OrderDetail, Size, Beverage, OrderBeverage, db
 from .serializers import (IngredientSerializer, OrderSerializer,
                           SizeSerializer, BeverageSerializer, ReportSerializer ,ma)
 
+import calendar
 
 class BaseManager:
     model: Optional[db.Model] = None
@@ -106,9 +108,21 @@ class ReportManager(BaseManager):
                   for most_requested_ingredient in most_requested_ingredient_query ]
         return report
     
+
+    @classmethod
+    def _get_month_more_revenue(cls):
+        report = {}
+        months_more_revenues = cls.session.query(extract('month',Order.date).label('month'), func.sum(Order.total_price).label('revenue')) \
+            .group_by(extract('month',Order.date)) \
+            .order_by(desc('revenue')) \
+            .all()
+        report = [{'month':calendar.month_name[month_revenue[0]], 'revenue':month_revenue[1]} for month_revenue in months_more_revenues]
+        print(report)
+        return report
+
     @classmethod
     def get_statistics(cls):
         report = {}
         report['ingredient_report'] = cls._get_most_requested_ingredient()
-        print(report)
+        report['order_report'] = cls._get_month_more_revenue()
         return cls.serializer().dump(report)
