@@ -98,7 +98,6 @@ class ReportManager(BaseManager):
 
     @classmethod
     def _get_most_requested_ingredient(cls):
-        report = {}
         most_requested_ingredient_query = cls.session.query(Ingredient, func.count(OrderDetail.ingredient_id).label('ingredient_count')) \
             .join(OrderDetail.ingredient)\
             .group_by(Ingredient) \
@@ -110,19 +109,30 @@ class ReportManager(BaseManager):
     
 
     @classmethod
-    def _get_month_more_revenue(cls):
-        report = {}
+    def _get_months_more_revenue(cls):
         months_more_revenues = cls.session.query(extract('month',Order.date).label('month'), func.sum(Order.total_price).label('revenue')) \
             .group_by(extract('month',Order.date)) \
             .order_by(desc('revenue')) \
             .all()
         report = [{'month':calendar.month_name[month_revenue[0]], 'revenue':month_revenue[1]} for month_revenue in months_more_revenues]
-        print(report)
         return report
+    
+
+    @classmethod
+    def _get_top_customers(cls, top=3):
+        best_customers = cls.session.query(Order.client_dni, Order.client_name, func.sum(Order.total_price).label('total_money'))\
+            .group_by(Order.client_dni)\
+            .order_by(desc('total_money'))\
+            .limit(top)
+        report = [{'customer_dni': best_register[0], 'customer_name': best_register[1], 'total_money': best_register[2]} 
+                  for best_register in best_customers]
+        return report
+
 
     @classmethod
     def get_statistics(cls):
         report = {}
         report['ingredient_report'] = cls._get_most_requested_ingredient()
-        report['order_report'] = cls._get_month_more_revenue()
+        report['order_report'] = cls._get_months_more_revenue()
+        report['customer_report'] = cls._get_top_customers()
         return cls.serializer().dump(report)

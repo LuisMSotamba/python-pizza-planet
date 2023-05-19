@@ -96,13 +96,26 @@ class OrderReportSerializer(ma.SQLAlchemyAutoSchema):
             'revenue'
         )
 
-class ReportSerializer(ma.SQLAlchemyAutoSchema):
+class CustomerSerializer(ma.SQLAlchemyAutoSchema):
+    customer_dni = ma.String()
+    customer_name = ma.String()
+    total_money = ma.Float()
 
+    class Meta:
+        fields = (
+            'customer_dni',
+            'customer_name',
+            'total_money'
+        )
+
+class ReportSerializer(ma.SQLAlchemyAutoSchema):
     ingredient_report = ma.Nested(IngredientReportSerializer, many=True)
     order_report = ma.Nested(OrderReportSerializer, many=True)
+    customer_report = ma.Nested(CustomerSerializer, many=True)
 
     class Meta:
         fields = (
             'ingredient_report',
-            'order_report'
+            'order_report',
+            'customer_report'
         )

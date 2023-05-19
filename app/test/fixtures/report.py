@@ -38,9 +38,27 @@ def create_order_report(orders):
     order_report = [order_range for order_range in order_report.values()]
     return sorted(order_report, key=lambda x: x['revenue'], reverse=True)
 
+
+def create_customer_report(orders):
+    customer_report = {}
+    for order in orders:
+        _order = order.json
+        if _order['client_name'] in customer_report:
+            customer_report[_order['client_name']]['total_money'] += _order['total_price']
+        else:
+            customer_report[_order['client_name']] = {
+                'customer_dni': _order['client_name'],
+                'customer_name': _order['client_name'],
+                'total_money': _order['total_price']
+            }
+    customer_report = [customer_range for customer_range in customer_report.values()]
+    return sorted(customer_report, key=lambda x: x['total_money'], reverse=True)
+
+
 @pytest.fixture
 def create_report(create_orders):
     report = {}
     report['ingredient_report'] = create_ingredients_report(create_orders)
     report['order_report'] = create_order_report(create_orders)
+    report['customer_report'] = create_customer_report(create_orders)
     return report
