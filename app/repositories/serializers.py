@@ -75,4 +75,22 @@ class OrderSerializer(ma.SQLAlchemyAutoSchema):
         )
 
 
+class IngredientReportSerializer(ma.SQLAlchemyAutoSchema):
 
+    ingredient = ma.Nested(IngredientSerializer)
+    ingredient_count = ma.Float()
+
+    class Meta:
+        fields = (
+            'ingredient',
+            'ingredient_count'
+        )
+
+class ReportSerializer(ma.SQLAlchemyAutoSchema):
+
+    ingredient_report = ma.Nested(IngredientReportSerializer, many=True)
+
+    class Meta:
+        fields = (
+            'ingredient_report',
+        )

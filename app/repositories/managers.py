@@ -1,11 +1,10 @@
 from typing import Any, List, Optional, Sequence
 
-from sqlalchemy.sql import text, column
+from sqlalchemy.sql import text, column, func, desc
 
 from .models import Ingredient, Order, OrderDetail, Size, Beverage, OrderBeverage, db
 from .serializers import (IngredientSerializer, OrderSerializer,
-                          SizeSerializer, BeverageSerializer, 
-                          OrderBeverageSerializer,ma)
+                          SizeSerializer, BeverageSerializer, ReportSerializer ,ma)
 
 
 class BaseManager:
@@ -90,3 +89,26 @@ class BeverageManager(BaseManager):
     @classmethod
     def get_by_id_list(cls, ids: Sequence):
         return cls.session.query(cls.model).filter(cls.model._id.in_(set(ids))).all() or []
+    
+
+class ReportManager(BaseManager):
+    serializer = ReportSerializer
+
+    @classmethod
+    def _get_most_requested_ingredient(cls):
+        report = {}
+        most_requested_ingredient_query = cls.session.query(Ingredient, func.count(OrderDetail.ingredient_id).label('ingredient_count')) \
+            .join(OrderDetail.ingredient)\
+            .group_by(Ingredient) \
+            .order_by(desc('ingredient_count')) \
+            .all()
+        report = [{'ingredient': most_requested_ingredient[0], 'ingredient_count': most_requested_ingredient[1]} 
+                  for most_requested_ingredient in most_requested_ingredient_query ]
+        return report
+    
+    @classmethod
+    def get_statistics(cls):
+        report = {}
+        report['ingredient_report'] = cls._get_most_requested_ingredient()
+        print(report)
+        return cls.serializer().dump(report)
