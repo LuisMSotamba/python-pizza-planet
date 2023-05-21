@@ -2,19 +2,18 @@ from app.common.http_methods import GET, POST, PUT
 from flask import Blueprint, jsonify, request
 
 from ..controllers import BeverageController
+from app.common.decorators import generic_response
 
 beverage = Blueprint('beverage', __name__)
 
 @beverage.route('/', methods=POST)
+@generic_response(POST, success_status_code=201)
 def create_beverage():
     beverage, error = BeverageController.create(request.json)
-    response = beverage if not error else {'error': error}
-    status_code = 201 if not error else 400
-    return jsonify(response), status_code
+    return beverage, error
 
 @beverage.route('/', methods=GET)
+@generic_response(GET)
 def get_beverages():
     beverages, error = BeverageController.get_all()
-    response = beverages if not error else {'error': error}
-    status_code = 200 if beverages else 404 if not error else 400
-    return jsonify(response), status_code
+    return beverages, error
