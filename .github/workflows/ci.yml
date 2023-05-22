@@ -1,0 +1,57 @@
+name: CI-Pizza-Planet
+
+on:
+  pull_request:
+    branches:
+      - develop 
+      - main
+
+jobs:
+  test-and-coverage:
+    runs-on: ubuntu-latest
+    outputs:
+      coverage_message: ${{ steps.get_coverage_message.outputs.comment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8 
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt 
+
+      - name: Run tests and coverage
+        run: |
+          make run-coverage
+
+      - name: Generate coverage markdown table
+        run: python .github/scripts/create_coverage_md_table.py
+
+      - name: Get total coverage
+        id: get_total_coverage
+        run: |
+          echo result=$(cat total_coverage) > $GITHUB_OUTPUT
+      
+      - name: get coverage message
+        id: get_coverage_message
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const os = require("os")
+            const fs = require('fs'); 
+            const file = fs.readFileSync('./coverage_table.txt', {encoding:'utf8', flag:'r'})
+            let new_comment = "### Coverage Report for Pizza Planet " +
+            file + "\n #### Total Coverage: ${{ steps.get_total_coverage.outputs.result }}"
+            new_comment = new_comment.replaceAll("%", "%25").replaceAll("\n", "%0A").replaceAll("\r", "%0D")
+            const output = process.env['GITHUB_OUTPUT']
+            fs.appendFileSync(output, `comment=${new_comment}${os.EOL}`)
+
+  comment_coverage:
+    needs: [test-and-coverage]
+    uses: ./.github/workflows/pull_request_commentator.yml
+    with:
+      message: ${{ needs.test-and-coverage.outputs.coverage_message }}
+      line_to_compare: 'Coverage Report'

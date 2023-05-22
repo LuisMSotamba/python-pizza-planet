@@ -2,7 +2,6 @@ from app.common.decorators import generic_response
 from app.common.http_methods import *
 import pytest
 
-# Test GET method response with instance
 def test_get_method_with_instance(app, client):
     @app.route('/fake-get/')
     @generic_response(GET)
@@ -14,7 +13,6 @@ def test_get_method_with_instance(app, client):
     pytest.assume(response.status_code==200)
     pytest.assume(response.json['hello']=='world')
 
-# Test GET method response with error
 def test_get_method_with_error(app, client):
     @app.route('/fake-get-error/')
     @generic_response(GET)
@@ -25,7 +23,6 @@ def test_get_method_with_error(app, client):
     pytest.assume(response.status_code == 400)
     pytest.assume(response.json['error']=='Could not find')
 
-# Test POST method response with instance
 def test_post_method_with_instance(app, client):
     @app.route('/fake-post/', methods=POST)
     @generic_response(POST)
@@ -36,7 +33,6 @@ def test_post_method_with_instance(app, client):
     pytest.assume(response.status_code==200)
     pytest.assume(response.json['id']==1)
 
-# Test POST method response with error
 def test_post_method_with_error(app, client):
     @app.route('/fake-post-error/', methods=POST)
     @generic_response(POST)
@@ -47,7 +43,6 @@ def test_post_method_with_error(app, client):
     pytest.assume(response.status_code==400)
     pytest.assume(response.json['error']=='Duplicate id')
 
-# Test PUT method response with instance
 def test_put_method_with_instance(app, client):
     @app.route('/fake-put/', methods=PUT)
     @generic_response(PUT)
@@ -58,7 +53,6 @@ def test_put_method_with_instance(app, client):
     pytest.assume(response.status_code==200)
     pytest.assume(response.json['message']=='updated successfully')
 
-# Test PUT method response with error
 def test_put_method_with_error(app, client):
     @app.route('/fake-put-error/', methods=PUT)
     @generic_response(PUT)

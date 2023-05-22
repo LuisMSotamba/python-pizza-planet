@@ -49,3 +49,8 @@ def create_orders(client, order_uri, create_ingredients, create_sizes) -> list:
         })
         orders.append(new_order)
     return orders
+
+@pytest.fixture
+def create_order(client, order_uri, order):
+    response = client.post(order_uri, json=order)
+    return response
