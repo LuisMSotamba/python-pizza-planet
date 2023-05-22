@@ -19,11 +19,6 @@ def order_uri():
 
 
 @pytest.fixture
-def client_data():
-    return client_data_mock()
-
-
-@pytest.fixture
 def order(create_ingredients, create_size, create_beverages) -> dict:
     ingredients = [ingredient.get('_id') for ingredient in create_ingredients]
     beverages = [beverage.get('_id') for beverage in create_beverages]
@@ -47,5 +42,10 @@ def create_orders(client, order_uri, create_ingredients, create_sizes) -> list:
             'ingredients': shuffle_list(ingredients)[:5],
             'size_id': shuffle_list(sizes)[0]
         })
-        orders.append(new_order)
+        orders.append(new_order.json)
     return orders
+
+@pytest.fixture
+def create_order(client, order_uri, order):
+    response = client.post(order_uri, json=order)
+    return response
