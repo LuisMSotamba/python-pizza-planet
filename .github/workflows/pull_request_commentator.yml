@@ -1,0 +1,53 @@
+name: Pull Request Commentator
+
+on:
+  workflow_call:
+    inputs:
+      message:
+        description: 'GitHub bot message'
+        required: true
+        type: string
+      line_to_compare:
+        description: 'Line to compare'
+        required: true
+        type: string
+
+
+jobs:
+  commentator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment coverage
+        uses: actions/github-script@v6
+        with:
+          script: |
+            let new_comment = `${{ inputs.message }}`
+            new_comment = new_comment.replaceAll("%25", "%").replaceAll("%0A", "\n").replaceAll("%0D", "\r")
+            const {data: comments} = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100
+            })
+            const comment = comments.find((comment) => {
+             return (
+               comment.user.login === 'github-actions[bot]' && comment.body.includes(
+                "${{ inputs.line_to_compare }}"
+               )
+              )
+            })
+            if (comment) {
+              github.rest.issues.updateComment({
+                comment_id: comment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: new_comment
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: new_comment
+              })
+            }
