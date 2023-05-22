@@ -1,8 +1,5 @@
 import pytest
 
-from app.test.utils.functions import get_random_string, get_random_price
-
-
 def test_create_order_service(order, client, order_uri):
     response = client.post(order_uri, json=order)
     order_response = response.json
