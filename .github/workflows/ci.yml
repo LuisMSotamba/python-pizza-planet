@@ -24,8 +24,7 @@ jobs:
 
       - name: Run tests and coverage
         run: |
-          pytest  # Update with your test command
-          coverage run --source=. -m pytest  # Update with your coverage command
+          python manage.py test
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v2
