@@ -19,7 +19,7 @@ migrate.init_app(flask_app, db)
 
 @manager.command('test', with_appcontext=False)
 def test():
-    return pytest.main(['-v', './app/test'])
+    return pytest.main(['-v', './app/test','--cov','./app/test'])
 
 @manager.command('seed', with_appcontext=True)
 @click.option('--orders', '-o', default=100, help='Orders to be created')
